@@ -8,10 +8,11 @@ Test int64_t wrapping issue in Java
 
 # Context
 I have a C++ code with overload `int` and `int64_t` that I need to wrap to Java...
+
 see [Foo.hpp](Foo.hpp) and the swig file [foo.i](foo.i)
 
 # GCC
-When using GCC int64_t will be define as long int
+When using GCC `int64_t` will be define as `long int` see:
 ```sh
 grepc -rn "typedef.*INT64_TYPE" /lib/gcc
 /lib/gcc/x86_64-linux-gnu/9/include/stdint-gcc.h:43:typedef __INT64_TYPE__ int64_t;
@@ -31,15 +32,17 @@ typedef long int		int64_t;
 typedef long long int		int64_t;
 #endif
 ```
+src: https://github.com/swig/swig/blob/master/Lib/stdint.i
 
-So far so good (at least in python and csharp), BUT in Java...
+
+So far so good (at least for Python and .NET wrapper), BUT in Java...
 
 # SWIG Java
 in Java SWIG swig seems to wrap C++ `long int` to C Wrapper `int` (also truncating 2^64 to 2^32...)
 Ref: http://www.swig.org/Doc4.0/SWIGDocumentation.html#Java_default_primitive_type_mappings
 Src: https://github.com/swig/swig/blob/master/Lib/java/typemaps.i
 
-So these both methods will have the same prototype -> my current issue
+So these both methods will have the same prototype -> one is ignored...
 
 AFAIK [java/typemaps.i](https://github.com/swig/swig/blob/master/Lib/java/typemaps.i) nor [java.swg](https://github.com/swig/swig/blob/master/Lib/java/java.swg) support the `SWIGWORDSIZE64` switch...
 
@@ -49,6 +52,7 @@ To reproduce the issue (ed I'm using swig 4.0.1)
 mkdir -p gen
 swig -DSWIGWORDSIZE64 -I. -c++ -java -o gen/foo_java_wrap.cc -package com.google.Foo -module main -outdir gen foo.i
 ```
+
 ## Observed
 ```sh
 foo.hpp:9: Warning 516: Overloaded method baz(int64_t) ignored,
