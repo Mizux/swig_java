@@ -1,3 +1,8 @@
+[![Status][linux_svg]][linux_link]
+
+[linux_svg]: https://github.com/Mizux/swig_java/workflows/Linux%20CI/badge.svg
+[linux_link]: https://github.com/Mizux/swig_java/actions?query=workflow%3A"Linux+CI"
+
 # SWIG Java issue
 Test int64_t wrapping issue in Java
 
