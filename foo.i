@@ -7,21 +7,13 @@
 
 #ifdef SWIGWORDSIZE64
 
-%define PRIMITIVE_TYPEMAP(TYPE, JNITYPE, JTYPE)
-%clear TYPE;
-%typemap(jstype) TYPE "JTYPE";
-%typemap(javain) TYPE "$javainput";
-%typemap(jtype) TYPE "JTYPE";
-%typemap(jni) TYPE "JNITYPE";
-%typemap(in) TYPE %{ $1 = ($1_ltype)&$input; %}
-%typemap(freearg) TYPE "";
-%typemap(out) TYPE %{ $result = $1; %}
-%typemap(javaout) TYPE %{ return $jnicall; %}
-
+%define PRIMITIVE_TYPEMAP(NEW_TYPE, TYPE)
+%clear NEW_TYPE;
+%apply TYPE { NEW_TYPE };
 %enddef // PRIMITIVE_TYPEMAP
 
-PRIMITIVE_TYPEMAP(long int, jlong, long);
-PRIMITIVE_TYPEMAP(unsigned long int, jlong, long);
+PRIMITIVE_TYPEMAP(long int, long long);
+PRIMITIVE_TYPEMAP(unsigned long int, long long);
 #undef PRIMITIVE_TYPEMAP
 
 #endif // SWIGWORDSIZE64
