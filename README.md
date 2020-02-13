@@ -35,10 +35,10 @@ typedef long long int		int64_t;
 src: https://github.com/swig/swig/blob/master/Lib/stdint.i
 
 
-So far so good (at least for Python and .NET wrapper), BUT in Java...
+So far so good (at least for Python wrapper), BUT in Java/Csharp...
 
 # SWIG Java
-in Java SWIG swig seems to wrap C++ `long int` to C Wrapper `int` (also truncating 2^64 to 2^32...)
+in Java, SWIG seems to wrap C++ `long int` to C Wrapper `int` (also truncating 2^64 to 2^32...)
 Ref: http://www.swig.org/Doc4.0/SWIGDocumentation.html#Java_default_primitive_type_mappings
 Src: https://github.com/swig/swig/blob/master/Lib/java/typemaps.i
 
@@ -51,6 +51,8 @@ To reproduce the issue (ed I'm using swig 4.0.1)
 ```sh
 mkdir -p gen
 swig -DSWIGWORDSIZE64 -I. -c++ -java -o gen/foo_java_wrap.cc -package com.google.Foo -module main -outdir gen foo.i
+
+cat gen/main.java
 ```
 
 ## Observed
@@ -58,7 +60,7 @@ swig -DSWIGWORDSIZE64 -I. -c++ -java -o gen/foo_java_wrap.cc -package com.google
 foo.hpp:9: Warning 516: Overloaded method baz(int64_t) ignored,
 foo.hpp:8: Warning 516: using baz(int) instead.
 
-cat gen/main.java
++cat gen/main.java
 ...
 package com.google.Foo;
 
@@ -69,6 +71,48 @@ public class main {
 
 }
 ```
+
+## Expected
+```sh
++cat gen/main.java
+...
+package com.google.Foo;
+
+public class main {
+  public static int baz(int param) {
+    return mainJNI.baz__SWIG_0(param);
+  }
+  public static int baz(long param) {
+    return mainJNI.baz__SWIG_1(param);
+  }
+
+}
+```
+
+# Solution
+Since the typemap for `long long` is correctly mapped to Java `long` (i.e. JNI
+`jlong`) we simply have to use:
+```swig
+%include "stdint.i"
+
+#if defined(SWIGJAVA)
+#if defined(SWIGWORDSIZE64)
+
+%define PRIMITIVE_TYPEMAP(NEW_TYPE, TYPE)
+%clear NEW_TYPE;
+%apply TYPE { NEW_TYPE };
+%enddef // PRIMITIVE_TYPEMAP
+
+PRIMITIVE_TYPEMAP(long int, long long);
+PRIMITIVE_TYPEMAP(unsigned long int, long long);
+
+#undef PRIMITIVE_TYPEMAP
+
+#endif // defined(SWIGWORDSIZE64)
+#endif // defined(SWIGJAVA)
+```
+
+This time both methods are correctly wrapped.
 
 see: https://stackoverflow.com/questions/60205627/swig-java-convert-int64-t-to-jlong-when-using-dswigwordsize64
 
