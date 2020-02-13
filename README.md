@@ -62,3 +62,12 @@ public class main {
 ```
 
 see: https://stackoverflow.com/questions/60205627/swig-java-convert-int64-t-to-jlong-when-using-dswigwordsize64
+
+# License
+
+Apache 2. See the LICENSE file for details.
+
+# Disclaimer
+
+This is not an official Google product, it is just code that happens to be
+owned by Google.
