@@ -1,0 +1,24 @@
+name: Linux CI
+
+on: [push, pull_request]
+
+jobs:
+  # Building using the github runner environement directly.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Check cmake
+      run: cmake --version
+    - name: Swig install
+      run: sudo apt install -y swig
+    - name: Check swig
+      run: swig -version
+    - name: Run swig
+      run: ./script.sh
+    - name: Foo.java
+      run: cat gen/Foo.java
+    - name: main.java
+      run: cat gen/main.java
+    - name: foo_java_wrap.cc
+      run: cat gen/foo_java_wrap.cc
