@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Check cmake
-      run: cmake --version
     - name: Swig install
       run: sudo apt install -y swig
     - name: Check swig
